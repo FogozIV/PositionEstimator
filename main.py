@@ -6,11 +6,18 @@ import matplotlib
 matplotlib.use('QtAgg')
 
 robot = Robot(local_points=np.array([
-    [0.1, 0.2],
-    [-0.1, 0.2],
-    [0.0, -0.2]
+    [-50, 135],
+    [-50, -135],
 ]))
-
+data = {'AB': 3000,
+ 'DA': 1999,
+ 'BC': 1999,
+ 'CD': 3004,
+ 'AC': 3606,
+ 'BD': 3608}
+result = solve_table_geometry(data, "x+")
+print(result)
+plot_table(result)
 world_points =[[2.5,1.8],
  [1.8, 2.2],
  [1.2, 1.3],
@@ -24,12 +31,3 @@ estimated_pose = robot.estimate_pose_from_trilateration(world_points, distances,
 
 plot_trilateration_with_robot_pose(estimated_pose, robot.local_points, world_points, distances, robot_indices)
 
-data = {'AB': 1.9838047619024064,
- 'DA': 1.5178319381112086,
- 'BC': 1.472645849486423,
- 'CD': 1.987796777919168,
- 'AC': 2.4784579785480294,
- 'BD': 2.492891370146073}
-result = solve_table_geometry(data, "x+")
-print(result)
-plot_table(result)

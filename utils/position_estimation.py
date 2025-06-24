@@ -2,6 +2,7 @@ import numpy as np
 from scipy.optimize import least_squares
 import matplotlib.pyplot as plt
 
+
 def compute_residual(position, positions):
     x, y = position
     return np.sqrt((x-positions[:, 0])**2 + (y-positions[:, 1])**2) - positions[:, 2]
@@ -57,12 +58,45 @@ class Robot:
             robot_world_points = np.hstack((robot_world_points, result))
         return self.estimate_robot_pose(robot_world_points)
     def estimate_pose_from_trilateration(self, world_points, distances, robot_indices, initial_guess=(0, 0, 0)):
+        distances = np.array(distances, dtype=float)
+        weights = 1 / np.clip(distances, 1e-6, None)
+        weights /= np.sum(weights)
+
+        # Weighted centroid of known beacon positions
+        xy_guess = np.sum(world_points * weights[:, np.newaxis], axis=0)
+
+        # Optional: estimate theta from two closest beacons
+        if len(world_points) >= 2:
+            closest_pair = np.argsort(distances)[:2]
+            p1, p2 = world_points[closest_pair]
+            # Robot is likely facing perpendicular to line between closest beacons
+            delta = p2 - p1
+            theta_guess = np.arctan2(delta[1], delta[0]) + np.pi / 2
+        else:
+            theta_guess = 0.0
+
+        initial_guess = (xy_guess[0], xy_guess[1], theta_guess)
         result = least_squares(
             residuals_for_trilateration,
             initial_guess,
             args=(self.local_points, world_points, distances, robot_indices)
         )
         return result.x  # (x, y, theta)
+    def estimate_pose_from_trilateration_map(self, square_map, data, initial_guess=(0,0,0)):
+        world_points = []
+        distances = []
+        robot_indices = []
+        for d in data:
+            world_points.append(square_map[d[1]])
+            distances.append(d[0])
+            robot_indices.append(d[2])
+        world_points = np.array(world_points)
+        distances = np.array(distances)
+        robot_indices = np.array(robot_indices)
+        result= self.estimate_pose_from_trilateration(world_points, distances, robot_indices, initial_guess)
+        return result
+
+
 def plot_robot_and_measurements(robot, pose, measured_points=None, distances=None):
     fig, ax = plt.subplots()
     ax.set_aspect('equal')
