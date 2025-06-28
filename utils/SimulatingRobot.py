@@ -147,7 +147,7 @@ class OdometryEstimator:
         self.calib_right_ticks = 0.0
 
     def params_as_array(self):
-        return np.array([self.track_mm, self.left_mm_per_tick, self.right_mm_per_tick])
+        return np.array([self.left_mm_per_tick, self.right_mm_per_tick, self.track_mm])
     def update(self, left_ticks, right_ticks):
         """
         :param left_ticks: current left encoder tick count (int)
@@ -242,7 +242,7 @@ def simulate_estimator_output(left_mm_tick, right_mm_tick, track_mm, encoder_tic
 def residual(params, true_poses, encoder_ticks, measured_indexes):
     l_tick, r_tick, track_mm = params
     estimated_poses = simulate_estimator_output(l_tick, r_tick, track_mm, encoder_ticks, measured_indexes)
-    return np.linalg.norm(true_poses - estimated_poses)
+    return np.linalg.norm((true_poses - estimated_poses)[:, :2])
 
 
 
