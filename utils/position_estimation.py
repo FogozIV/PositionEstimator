@@ -94,6 +94,7 @@ class Robot:
         distances = np.array(distances)
         robot_indices = np.array(robot_indices)
         result= self.estimate_pose_from_trilateration(world_points, distances, robot_indices, initial_guess)
+        plot_trilateration_with_robot_pose(result, self.local_points, world_points, distances, robot_indices)
         return result
 
 

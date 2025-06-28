@@ -47,6 +47,7 @@ if __name__ == "__main__":
         poses.append(estimator.update(r.left, r.right)[0])
     poses = np.array(poses)
     highlighted = poses[indexes]
+    print(positions-highlighted)
     plt.figure(figsize=(8, 8))
     plt.plot(poses[:, 0], poses[:, 1], label='Real Pose')
     plt.scatter(highlighted[:, 0], highlighted[:, 1], s=100, edgecolors='red', facecolors='none',
@@ -54,6 +55,7 @@ if __name__ == "__main__":
 
     plt.scatter(positions[:, 0], positions[:, 1], s=100, edgecolors='blue', facecolors='none',
                 label='Real Points')
+
     plt.xlabel("X (mm)")
     plt.ylabel("Y (mm)")
     plt.title("Real Pose")
